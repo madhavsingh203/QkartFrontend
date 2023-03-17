@@ -6,17 +6,36 @@ import React, { useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import CircularProgress from '@mui/material/CircularProgress';
 import "./Register.css";
 
+
 const Register = () => {
+
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: ""
+  })
+
   const { enqueueSnackbar } = useSnackbar();
 
+
+  const handleChange = (event) =>{
+    // console.log("name::",event.target.name)
+    // console.log("value::",event.target.value)
+    const [key, value] = [event.target.name, event.target.value]
+  setFormData((newFormData) =>({...newFormData, [key]: value }))
+ 
+ 
+
+  }
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
    * Definition for register handler
    * - Function to be called when the user clicks on the register button or submits the register form
-   *
+   *  
    * @param {{ username: string, password: string, confirmPassword: string }} formData
    *  Object with values of username, password and confirm password user entered to register
    *
@@ -35,8 +54,35 @@ const Register = () => {
    *      "message": "Username is already taken"
    * }
    */
-  const register = async (formData) => {
-  };
+   const postData = async()=>{
+    if(!validateInput(formData)) return;
+try{
+
+  await axios.post(`${config.endpoint}/auth/register`,{
+    username: formData.username,
+    password: formData.password
+  })
+  setFormData({
+    username: "",
+    password: "",
+    confirmPasssword: "" 
+  })
+  enqueueSnackbar("success!", {variant : "success"})
+}catch(e){
+  if(e.response && e.response.status === 400){
+    enqueueSnackbar(e.response.data.message, {variant: "error"})
+  }else
+   enqueueSnackbar("Uh oh! Some issue occured at the backend", {variant : "error"})
+}
+    
+    console.log("username::", formData.username)
+    console.log("password::", formData.password)
+  
+   }
+
+ 
+
+  
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
   /**
@@ -57,8 +103,32 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+    console.log(data)
+    if(!data.username){
+      enqueueSnackbar("Username is required", {variant: "warning"})
+      return false
+    }
+    if(data.username.length<6){
+      enqueueSnackbar("Username must be atleast 6 characters length")
+      return false
+    }
+    if(!data.password){
+      enqueueSnackbar("Password is required", {variant: "warning"})
+      return false;
+    }
+    if(data.password.length<6){
+      enqueueSnackbar("Password must be atleast 6 characters length")
+      return false;
+    }
+    if(data.password !== data.confirmPassword){
+      enqueueSnackbar("Password and Confirm Password do not match", {variant:"warning"})
+      return false;
+    }
+    return true;
   };
-
+  
+  
+//validateInput()
   return (
     <Box
       display="flex"
@@ -70,34 +140,38 @@ const Register = () => {
       <Box className="content">
         <Stack spacing={2} className="form">
           <h2 className="title">Register</h2>
-          <TextField
+          <TextField onChange={handleChange}
+            
             id="username"
             label="Username"
             variant="outlined"
             title="Username"
             name="username"
+            value = {formData.username}
             placeholder="Enter Username"
             fullWidth
           />
-          <TextField
+          <TextField onChange={handleChange}
             id="password"
             variant="outlined"
             label="Password"
             name="password"
             type="password"
+            value = {formData.password}
             helperText="Password must be atleast 6 characters length"
             fullWidth
             placeholder="Enter a password with minimum 6 characters"
           />
-          <TextField
+          <TextField onChange={handleChange}
             id="confirmPassword"
             variant="outlined"
             label="Confirm Password"
             name="confirmPassword"
+            value = {formData.confirmPassword}
             type="password"
             fullWidth
           />
-           <Button className="button" variant="contained">
+           <Button onClick={postData} className="button" variant="contained">
             Register Now
            </Button>
           <p className="secondary-action">
