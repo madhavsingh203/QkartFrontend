@@ -1,3 +1,4 @@
+
 import { Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
@@ -6,12 +7,13 @@ import React, { useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import { useHistory } from "react-router-dom";
 //import CircularProgress from '@mui/material/CircularProgress';
 import "./Register.css";
 
 
 const Register = () => {
-
+  const history = useHistory();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -26,9 +28,6 @@ const Register = () => {
     // console.log("value::",event.target.value)
     const [key, value] = [event.target.name, event.target.value]
   setFormData((newFormData) =>({...newFormData, [key]: value }))
- 
- 
-
   }
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
@@ -55,6 +54,7 @@ const Register = () => {
    * }
    */
    const postData = async()=>{
+   
     if(!validateInput(formData)) return;
 try{
 
@@ -62,21 +62,23 @@ try{
     username: formData.username,
     password: formData.password
   })
-  setFormData({
-    username: "",
-    password: "",
-    confirmPasssword: "" 
-  })
+  // setFormData({
+  //   username: "",
+  //   password: "",
+  //   confirmPasssword: "" 
+  // })
   enqueueSnackbar("success!", {variant : "success"})
+  history.push("/login", { from: "/register" })
+ 
 }catch(e){
   if(e.response && e.response.status === 400){
     enqueueSnackbar(e.response.data.message, {variant: "error"})
   }else
-   enqueueSnackbar("Uh oh! Some issue occured at the backend", {variant : "error"})
+   enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", {variant : "error"})
 }
     
-    console.log("username::", formData.username)
-    console.log("password::", formData.password)
+    // console.log("username::", formData.username)
+    // console.log("password::", formData.password)
   
    }
 
@@ -103,7 +105,7 @@ try{
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
-    console.log(data)
+   // console.log(data)
     if(!data.username){
       enqueueSnackbar("Username is required", {variant: "warning"})
       return false
@@ -171,12 +173,12 @@ try{
             type="password"
             fullWidth
           />
-           <Button onClick={postData} className="button" variant="contained">
+           <Button  name="register now" onClick={postData} className="button" variant="contained">
             Register Now
            </Button>
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+             <a className="link" href="#" onClick={() => history.push("/login", { from: "/register" })}>
               Login here
              </a>
           </p>
