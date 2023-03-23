@@ -1,12 +1,14 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Avatar, Button, Stack } from "@mui/material";
+import { Search } from "@mui/icons-material";
+import { Avatar, Button, Stack,InputAdornment,
+  TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import "./Header.css";
 import { Route, Switch } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
-const Header = ({ children, hasHiddenAuthButtons }) => {
+const Header = ({ children, hasHiddenAuthButtons, desktopSearch }) => {
  // console.log(hasHiddenAuthButtons)
   const history = useHistory();
   const handleBackToExplore = ()=>{
@@ -38,20 +40,66 @@ if(hasHiddenAuthButtons===true){
 
 }else{
   if(window.location.pathname === '/' && !window.localStorage.getItem("token")){
-    prodctsPageButtons =  <Stack direction="row" spacing={2}>
-            
+    prodctsPageButtons =  
+    
+    <>
+    <TextField
+        className="search-desktop"
+        size="small"
+        
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+       
+       onChange = {desktopSearch}
+      /> 
+    
+    <Stack direction="row" spacing={2}>
+             
       <Button onClick= {handleLoginButtonClicked} className="login-button">Login</Button>
      <Button onClick= {handleRegisterButtonClicked} className="register-button">Register</Button>
      
     </Stack>
+    
+    </>
+    
+    
     }else if(window.location.pathname === '/' && localStorage.getItem("username")){
-     prodctsPageButtons =  <Stack direction="row" spacing={2}>
+     prodctsPageButtons = 
+     <>
+       <TextField
+        className="search-desktop"
+        size="small"
+        fullWidth
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+       
+       onChange = {desktopSearch}
+      /> 
+     <Stack direction="row" spacing={2}>
             
             <Avatar alt={localStorage.getItem("username")} src="./avatar.png" />
             <p>{window.localStorage.username}</p>
       <Button  onClick = {handleClick}>Logout</Button>
       
      </Stack>
+     </>
+     
+     
+     
     }
 
 }
@@ -67,7 +115,7 @@ if(hasHiddenAuthButtons===true){
             <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
      
-        
+        {children}
           
      {prodctsPageButtons}
        
