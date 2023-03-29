@@ -13,7 +13,7 @@ import "./ProductCard.css";
 
 const ProductCard = ({ product, handleAddToCart }) => {
   return (
-    <Card className="card">
+    <Card className="card" mt={2}>
       <CardMedia component = 'img' alt = {product.name} image ={product.image} />
       <CardContent>
         <Typography>{product.name}</Typography>
@@ -28,9 +28,9 @@ const ProductCard = ({ product, handleAddToCart }) => {
       <CardActions className="card-actions">
         <Button
         className="card-button"
-        fullwidth
+        //fullwidth
         variant = "contained"
-        starIcon= {<AddShoppingCartOutlined />}
+        //starIcon= {<AddShoppingCartOutlined />}
         onClick = {handleAddToCart}
         >
           Add to cart

@@ -13,13 +13,15 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import ProductCard from "./ProductCard";
+import Cart, { generateCartItemsFrom } from './Cart'
 import "./Products.css";
 
-// Definition of Data Structures used
+
 /**
- * @typedef {Object} Product - Data on product available to buy
+ * @typedef {Object} CartItem -  - Data on product added to cart
  * 
- * @property {string} name - The name or title of the product
+ * @property {string} name - The name or title of the product in cart
+ * @property {string} qty - The quantity of product added to cart
  * @property {string} category - The category that the product belongs to
  * @property {number} cost - The price to buy the product
  * @property {number} rating - The aggregate rating of the product (integer out of five)
@@ -31,11 +33,12 @@ import "./Products.css";
 const Products = () => {
 
   const [items, setItems] = useState([])
-  const { enqueueSnackbar } = useSnackbar();
+  
   const [isLoading, setIsLoading] = useState([])
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [debounceTimeout,setDebounceTimeout] = useState("")
+  const { enqueueSnackbar } = useSnackbar();
   const token = localStorage.getItem("token")
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
@@ -156,6 +159,11 @@ setDebounceTimeout(timeout);
     useEffect(()=>{
       const onLoadHandler = async () =>{
         const productData = await performAPICall()
+
+        const cartData = await fetchCart(token);
+
+        const cartDetails = await generateCartItemsFrom(cartData, productData);
+        setItems(cartDetails)
       }
       onLoadHandler()
     },[])
@@ -165,6 +173,162 @@ setDebounceTimeout(timeout);
     }
 
 
+  
+
+
+  /**
+   * Perform the API call to fetch the user's cart and return the response
+   *
+   * @param {string} token - Authentication token returned on login
+   *
+   * @returns { Array.<{ productId: string, qty: number }> | null }
+   *    The response JSON object
+   *
+   * Example for successful response from backend:
+   * HTTP 200
+   * [
+   *      {
+   *          "productId": "KCRwjF7lN97HnEaY",
+   *          "qty": 3
+   *      },
+   *      {
+   *          "productId": "BW0jAAeDJmlZCF8i",
+   *          "qty": 1
+   *      }
+   * ]
+   *
+   * Example for failed response from backend:
+   * HTTP 401
+   * {
+   *      "success": false,
+   *      "message": "Protected route, Oauth2 Bearer token not found"
+   * }
+   */
+  const fetchCart = async (token) => {
+    if (!token) return;
+
+    try {
+      // TODO: CRIO_TASK_MODULE_CART - Pass Bearer token inside "Authorization" header to get data from "GET /cart" API and return the response data
+    const res = await axios.get(`${config.endpoint}/cart`,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return res.data
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "Could not fetch cart details. Check that the backend is running, reachable and returns valid JSON.",
+          {
+            variant: "error",
+          }
+        );
+      }
+      return null;
+    }
+  };
+
+
+  const updateCart = (cartData, products) =>{
+    const CartItems = generateCartItemsFrom(cartData, products)
+    setItems(CartItems)
+  }
+  // TODO: CRIO_TASK_MODULE_CART - Return if a product already exists in the cart
+  /**
+   * Return if a product already is present in the cart
+   *
+   * @param { Array.<{ productId: String, quantity: Number }> } items
+   *    Array of objects with productId and quantity of products in cart
+   * @param { String } productId
+   *    Id of a product to be checked
+   *
+   * @returns { Boolean }
+   *    Whether a product of given "productId" exists in the "items" array
+   *
+   */
+  const isItemInCart = (items, productId) => {
+    if(items){
+      return items.findIndex((item)=> item.productId === productId) !== -1
+    }
+  };
+
+  /**
+   * Perform the API call to add or update items in the user's cart and update local cart data to display the latest cart
+   *
+   * @param {string} token
+   *    Authentication token returned on login
+   * @param { Array.<{ productId: String, quantity: Number }> } items
+   *    Array of objects with productId and quantity of products in cart
+   * @param { Array.<Product> } products
+   *    Array of objects with complete data on all available products
+   * @param {string} productId
+   *    ID of the product that is to be added or updated in cart
+   * @param {number} qty
+   *    How many of the product should be in the cart
+   * @param {boolean} options
+   *    If this function was triggered from the product card's "Add to Cart" button
+   *
+   * Example for successful response from backend:
+   * HTTP 200 - Updated list of cart items
+   * [
+   *      {
+   *          "productId": "KCRwjF7lN97HnEaY",
+   *          "qty": 3
+   *      },
+   *      {
+   *          "productId": "BW0jAAeDJmlZCF8i",
+   *          "qty": 1
+   *      }
+   * ]
+   *
+   * Example for failed response from backend:
+   * HTTP 404 - On invalid productId
+   * {
+   *      "success": false,
+   *      "message": "Product doesn't exist"
+   * }
+   */
+  const addToCart = async (
+    token,
+    items,
+    products,
+    productId,
+    qty,
+    options = { preventDuplicate: false }
+  ) => {
+    if(!token){
+      enqueueSnackbar("Login to add an item to the cart",{variant: "warning"})
+      return
+    }
+
+    if(options.preventDuplicate && isItemInCart(items , productId)){
+      enqueueSnackbar("Item already in cart. Use the cart sidebar to update quantity or remove item.",
+      {variant: "warning"})
+      return
+    }
+    try{
+      const res = await axios.post(`${config.endpoint}/cart`,{
+        productId,
+        qty
+      },
+      {
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      }
+      )
+      updateCart(res.data, products)
+    } catch(e){
+      if(e.res){
+        enqueueSnackbar(e.res.data.message, {variant : "error"})
+      }else{
+        enqueueSnackbar("Could not fetch products. Check if the backend is running, reachable and return a valid JSON.",
+        { variant: "error"})
+      }
+    }
+  };
 
 
   return (
@@ -174,8 +338,9 @@ setDebounceTimeout(timeout);
       
       </Header>
      
-
+      
       {/* Search view for mobiles */}
+      
       <TextField
         className="search-mobile"
         size="small"
@@ -191,7 +356,25 @@ setDebounceTimeout(timeout);
         name="search"
         onChange = {(e)=>{debounceSearch(e, debounceTimeout)}}
       />
+
+
+
+
+
+<Grid container >
+  
+    {/* Products to be displayed here */}
+  
+
        <Grid container>
+        <Grid
+        item
+        xs={12}
+        md={token && products.length ? 9:12}
+        className="product-grid">
+
+        <Box className="hero">
+        <Grid container className="product-container"  >
          <Grid item className="product-grid">
            <Box className="hero">
              <p className="hero-heading">
@@ -201,6 +384,8 @@ setDebounceTimeout(timeout);
            </Box>
          </Grid>
        </Grid>
+
+        </Box>
 
           {isLoading ? (
             <Box className = "loading">
@@ -214,6 +399,18 @@ setDebounceTimeout(timeout);
                     <Grid item xs={6} md = {3} key ={product._id}>
                       <ProductCard
                       product={product}
+                      handleAddToCart={async ()=>{
+                        await addToCart(
+                          token,
+                          items,
+                          products,
+                          product._id,
+                          1,
+                          {
+                            preventDuplicate: true,
+                          }
+                        )
+                      }}
                       />
                     </Grid>
 
@@ -232,7 +429,24 @@ setDebounceTimeout(timeout);
           
           
           }
+  </Grid>
+              {token ? (
+                <Grid item xs={12} md={3} bgcolor="#E9F5E1">
+                <Cart
+                hasCheckoutButton
+                products = {products}
+                items={items}
+                handleQuantity={addToCart}
+                />
+                </Grid>
+              ) : null
+              }
 
+
+
+       </Grid>      
+  
+  </Grid>
 
       <Footer />
     </div>

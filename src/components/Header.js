@@ -76,7 +76,7 @@ if(hasHiddenAuthButtons===true){
        <TextField
         className="search-desktop"
         size="small"
-        fullWidth
+        
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -92,7 +92,7 @@ if(hasHiddenAuthButtons===true){
      <Stack direction="row" spacing={2}>
             
             <Avatar alt={localStorage.getItem("username")} src="./avatar.png" />
-            <p>{window.localStorage.username}</p>
+            <p className="username-text">{window.localStorage.username}</p>
       <Button  onClick = {handleClick}>Logout</Button>
       
      </Stack>

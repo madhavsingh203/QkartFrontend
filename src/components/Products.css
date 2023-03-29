@@ -15,6 +15,8 @@
   align-items: center;
 }
 
+
+
 .product-grid {
   width: 100%;
 }
@@ -52,6 +54,21 @@
   display: none !important;
 }
 
+.cart-mobile{
+  display: block !important;
+  
+}
+
+.cart-desktop{
+  display:none !important;
+}
+
+.cart-background{
+  background-color:#E9F5E1 !important ;
+}
+
+
+
 @media screen and (min-width: 768px) {
   .hero {
     justify-content: flex-end;
@@ -67,6 +84,12 @@
     display: none !important;
   }
   .search-desktop {
+    display: block !important;
+  }
+  .cart-mobile{
+    display: none !important;
+  }
+  .cart-desktop{
     display: block !important;
   }
 }
