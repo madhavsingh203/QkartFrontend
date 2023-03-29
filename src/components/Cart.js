@@ -213,7 +213,7 @@ return (
                             value = {item.qty}
                             isReadOnly={isReadOnly}
                           />
-                          <Box padding = "0.5" fontweight = "700">
+                          <Box padding = "0.5" fontWeight = "700">
                             ${item.cost}
                     </Box>
                     </Box>

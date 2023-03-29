@@ -214,6 +214,7 @@ setDebounceTimeout(timeout);
         Authorization: `Bearer ${token}`
       }
     })
+    console.log(res.data)
     return res.data
     } catch (e) {
       if (e.response && e.response.status === 400) {
