@@ -28,9 +28,9 @@ const ProductCard = ({ product, handleAddToCart }) => {
       <CardActions className="card-actions">
         <Button
         className="card-button"
-        //fullwidth
+        fullWidth
         variant = "contained"
-        //starIcon= {<AddShoppingCartOutlined />}
+        startIcon= {<AddShoppingCartOutlined />}
         onClick = {handleAddToCart}
         >
           Add to cart

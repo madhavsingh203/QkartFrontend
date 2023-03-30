@@ -96,6 +96,8 @@ const getTotalItems = (items= []) =>{
  * @param {Function} handleDelete
  *    Handler function which reduces the quantity of a product in cart by 1
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
 const ItemQuantity = ({
@@ -134,6 +136,8 @@ const ItemQuantity = ({
  * @param {Function} handleDelete
  *    Current quantity of product in cart
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
 const Cart = ({

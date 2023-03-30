@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import Login from "./components/Login";
 import Products from "./components/Products";
-//import Checkout from './components/Checkout'
+import Checkout from './components/Checkout'
+import Thanks from './components/Thanks'
 export const config = {
   endpoint: `http://${ipConfig.workspaceIp}:8082/api/v1`,
 };
@@ -21,9 +22,12 @@ function App() {
           <Route path="/login">
           <Login />
           </Route>
-          {/* <Route path="/checkout">
+          <Route path="/checkout">
           <Checkout />
-          </Route> */}
+          </Route>
+          <Route path="/thanks">
+          <Thanks />
+          </Route>
           <Route path="/">
           <Products />
           </Route>
