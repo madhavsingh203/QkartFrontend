@@ -5,7 +5,7 @@ import { Avatar, Button, Stack,InputAdornment,
 import Box from "@mui/material/Box";
 import React from "react";
 import "./Header.css";
-import { Route, Switch } from "react-router-dom";
+//import { Route, Switch } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
 const Header = ({ children, hasHiddenAuthButtons, desktopSearch }) => {

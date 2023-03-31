@@ -48,7 +48,7 @@ import "./Cart.css";
  *
  */
 
-const isReadOnly = false
+//const isReadOnly = false
 export const generateCartItemsFrom = (cartData, productsData) => {
   if(!cartData) return;
   const newCart = cartData.map((item) =>({
